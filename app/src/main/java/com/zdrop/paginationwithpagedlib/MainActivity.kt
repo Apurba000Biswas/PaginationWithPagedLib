@@ -1,23 +1,28 @@
 package com.zdrop.paginationwithpagedlib
 
 import android.os.Bundle
+import android.view.View
+import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 
-class MainActivity : AppCompatActivity(), DataSource.DataResponseListener {
+class MainActivity : AppCompatActivity()
+    , DataSource.DataResponseListener
+    , BaseAdapter.PaginationListener{
 
 
     private lateinit var adapter : ItemAdapter
+    private lateinit var loadingFooter : ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        loadingFooter = findViewById(R.id.loading_indicator)
 
         setRecyclerView()
-        adapter.currentPage = 1
-        loadData()
+        onLoadData(1)
     }
 
     private fun setRecyclerView(){
@@ -27,34 +32,18 @@ class MainActivity : AppCompatActivity(), DataSource.DataResponseListener {
         val layoutManager = LinearLayoutManager(this)
         recyclerView.layoutManager = layoutManager
         adapter = ItemAdapter()
-
-
-        recyclerView.addOnScrollListener(object : PaginationScrollListener(layoutManager){
-            override fun loadMoreItems() {
-                adapter.currentPage++
-                adapter.isLoading = true
-                loadData()
-            }
-
-            override fun isLastPage(): Boolean {
-                return adapter.isLastPage
-            }
-
-            override fun isLoading(): Boolean {
-                return adapter.isLoading
-            }
-        })
+        adapter.setRecyclerViewForPagination(recyclerView, layoutManager, this, 1)
         recyclerView.adapter = adapter
     }
 
-    private fun loadData(){
-        DataSource.getItem(adapter.currentPage, this)
+    override fun onResponse(data: MutableList<ItemModel>?) {
+        adapter.setDataSet(data)
+        loadingFooter.visibility = View.GONE
     }
 
-    override fun onResponse(data: MutableList<ItemModel>?) {
-        if (data == null) adapter.isLastPage = true
-        adapter.isLoading = false
-        adapter.setDataSet(data)
+    override fun onLoadData(nextPage: Int) {
+        DataSource.getItem(nextPage, this)
+        loadingFooter.visibility = View.VISIBLE
     }
 
 

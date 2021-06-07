@@ -9,8 +9,12 @@ public class ItemAdapter extends BaseAdapter{
 
     public void setDataSet(List<ItemModel> dataSet) {
         if (this.dataSet == null) this.dataSet = new ArrayList<>();
-        if (dataSet != null) this.dataSet.addAll(dataSet) ;
-        notifyDataSetChanged();
+        if (dataSet == null){
+            super.notifyAdapter( true);
+        }else{
+            this.dataSet.addAll(dataSet);
+            super.notifyAdapter(false);
+        }
     }
 
     @Override
