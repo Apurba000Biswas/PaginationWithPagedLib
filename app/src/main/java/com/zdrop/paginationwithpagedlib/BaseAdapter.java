@@ -5,6 +5,8 @@ import android.view.ViewGroup;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
@@ -13,14 +15,55 @@ import androidx.paging.PagingDataAdapter;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
-public abstract class BaseAdapter extends PagingDataAdapter<Object, RecyclerView.ViewHolder> {
+public abstract class BaseAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    public BaseAdapter() { super(new ObjectComparator()); }
+    private static final int LOADING_VIEW_TYPE = 1;
+    private static final int ITEM_VIEW_TYPE = 0;
+
 
     public abstract Object getDataAtPosition(int position);
     public abstract int getLayoutIdForType(int viewType);
     public abstract Object getClickListener(int position, int viewType);
 
+    private List<?> dataSet;
+    private boolean isPaginationActivated;
+
+    private boolean isLoading;
+    private boolean isLastPage;
+    public Integer currentPage;
+
+    public boolean isLastPage() {
+        return isLastPage;
+    }
+
+    public boolean isLoading() {
+        return isLoading;
+    }
+
+    public void setLastPage(boolean lastPage) {
+        isLastPage = lastPage;
+        currentPage = 0;
+    }
+
+    public void setLoading(boolean loading) {
+        isLoading = loading;
+    }
+
+    protected void setBaseDataSet(List<?> dataSet){
+        this.dataSet = dataSet;
+    }
+
+    public void setPaginationActivated(boolean paginationActivated) {
+        isPaginationActivated = paginationActivated;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (isPaginationActivated){
+            if (position == dataSet.size()) return LOADING_VIEW_TYPE;
+        }
+        return ITEM_VIEW_TYPE;
+    }
 
     @NonNull
     @Override
@@ -51,14 +94,4 @@ public abstract class BaseAdapter extends PagingDataAdapter<Object, RecyclerView
         }
     }
 
-    private static class ObjectComparator extends DiffUtil.ItemCallback<Object>{
-        @Override
-        public boolean areItemsTheSame(@NonNull @NotNull Object oldItem, @NonNull @NotNull Object newItem) {
-            return false;
-        }
-        @Override
-        public boolean areContentsTheSame(@NonNull @NotNull Object oldItem, @NonNull @NotNull Object newItem) {
-            return false;
-        }
-    }
 }

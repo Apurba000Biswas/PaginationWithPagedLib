@@ -1,5 +1,6 @@
 package com.zdrop.paginationwithpagedlib;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ItemAdapter extends BaseAdapter{
@@ -7,7 +8,8 @@ public class ItemAdapter extends BaseAdapter{
     private List<ItemModel> dataSet;
 
     public void setDataSet(List<ItemModel> dataSet) {
-        this.dataSet = dataSet;
+        if (this.dataSet == null) this.dataSet = new ArrayList<>();
+        if (dataSet != null) this.dataSet.addAll(dataSet) ;
         notifyDataSetChanged();
     }
 
@@ -28,6 +30,6 @@ public class ItemAdapter extends BaseAdapter{
 
     @Override
     public int getItemCount() {
-        return dataSet.size();
+        return (dataSet == null) ? 0 : dataSet.size();
     }
 }
